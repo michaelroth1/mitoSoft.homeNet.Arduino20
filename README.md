@@ -42,6 +42,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Blind controlling sketch:
 
 ```c++
+
 #include <MitoSoft.h>
 
 DebouncingInput shutter1Pos(23, INPUT_PULLUP, 50);
@@ -79,19 +80,19 @@ void loop() {
 
 	if (shutter1.started()) {
 		Serial.println("Started Direction: " + shutter1.getDirectionAsText());
-    if (1 == shutter1.getDirection()) { //DOWN
-      shutter1Up.setOff();
-      shutter1Down.setOn();
-    }
-    else if (2 == shutter1.getDirection()) { //UP
-      shutter1Up.setOn();
-      shutter1Down.setOff();
-    }
+		if (1 == shutter1.getDirection()) { //DOWN
+			shutter1Up.setOff();
+			shutter1Down.setOn();
+		}
+		else if (2 == shutter1.getDirection()) { //UP
+			shutter1Up.setOn();
+			shutter1Down.setOff();
+		}
 	}
 	else if (shutter1.stopped()) {
 		Serial.println("Stopped Pos: " + String(shutter1.getPosition()) + "; Fin-Pos: " + String(shutter1.getFinPosition()));
-    shutter1Up.setOn();
-    shutter1Down.setOn();
+		shutter1Up.setOn();
+		shutter1Down.setOn();
 	}
 	
 	//looping
