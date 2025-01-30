@@ -54,50 +54,50 @@ InvertableOutput shutter1Down(45, STANDARD); //INVERTED
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-	Serial.begin(9600);
+    Serial.begin(9600);
 
-	Serial.println("start SimpleGPIOUsing.ino");
+    Serial.println("start SimpleGPIOUsing.ino");
 
-	shutter1.referenceRun();
-	shutter1.setShutterAndFinPosition(50.0, 0.0);
+    shutter1.referenceRun();
+    shutter1.setShutterAndFinPosition(50.0, 0.0);
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 
-	if (shutter1DownButton.risingEdge()) {
-		shutter1.runDown();
-	}
-	else if (shutter1UpButton.risingEdge()) {
-		shutter1.runUp();
-	}
-	else if (shutter1Pos.risingEdge()) {
-		String message = "60;50";
-		double absPos = StringHelper().split(message, ';', 0).toDouble();
-		double finPos = StringHelper().split(message, ';', 1).toDouble(); 
-		shutter1.setPosition(absPos, finPos);
-	}
+    if (shutter1DownButton.risingEdge()) {
+	shutter1.runDown();
+    }
+    else if (shutter1UpButton.risingEdge()) {
+	shutter1.runUp();
+    }
+    else if (shutter1Pos.risingEdge()) {
+ 	String message = "60;50";
+	double absPos = StringHelper().split(message, ';', 0).toDouble();
+	double finPos = StringHelper().split(message, ';', 1).toDouble(); 
+	shutter1.setPosition(absPos, finPos);
+    }
 
-	if (shutter1.started()) {
-		Serial.println("Started Direction: " + shutter1.getDirectionAsText());
-		if (1 == shutter1.getDirection()) { //DOWN
-			shutter1Up.setOff();
-			shutter1Down.setOn();
-		}
-		else if (2 == shutter1.getDirection()) { //UP
-			shutter1Up.setOn();
-			shutter1Down.setOff();
-		}
+    if (shutter1.started()) {
+	Serial.println("Started Direction: " + shutter1.getDirectionAsText());
+	if (1 == shutter1.getDirection()) { //DOWN
+	    shutter1Up.setOff();
+  	    shutter1Down.setOn();
 	}
-	else if (shutter1.stopped()) {
-		Serial.println("Stopped Pos: " + String(shutter1.getPosition()) + "; Fin-Pos: " + String(shutter1.getFinPosition()));
-		shutter1Up.setOn();
-		shutter1Down.setOn();
+	else if (2 == shutter1.getDirection()) { //UP
+	    shutter1Up.setOn();
+	    shutter1Down.setOff();
 	}
+    }
+    else if (shutter1.stopped()) {
+	Serial.println("Stopped Pos: " + String(shutter1.getPosition()) + "; Fin-Pos: " + String(shutter1.getFinPosition()));
+	shutter1Up.setOn();
+	shutter1Down.setOn();
+    }
 	
-	//looping
-	shutter1.loop();
-	delay(10);
+    //looping
+    shutter1.loop();
+    delay(10);
 }
 ```
 
@@ -141,31 +141,30 @@ void setup() {
 }
 
 void loop() {
-
     String t = "";
     String m = "";
 
-	if (mqttHelper.onMessageReceived()){
-		t = mqttHelper.getLastTopic();
-		m = mqttHelper.getLastMessage();
-	}    
+    if (mqttHelper.onMessageReceived()){
+	t = mqttHelper.getLastTopic();
+	m = mqttHelper.getLastMessage();
+    }    
+
+    if (m != "") {
+	Serial.println("Message received in MAIN LOOP: " + m);
+    }
+
+    // publish a message roughly every second.
+    if (millis() - lastMillis > 1000) {
+ 	lastMillis = millis();
+	mqttHelper.publish("Output2", "High");
+    }
 	
-	if (m != "") {
-		Serial.println("Message received in MAIN LOOP: " + m);
-	}
-	
-	// publish a message roughly every second.
-	if (millis() - lastMillis > 1000) {
-		lastMillis = millis();
-		mqttHelper.publish("Output2", "High");
-	}
-	
-	if(mqttHelper.onConnected()){
-		mqttHelper.subscribe("input/+/command/#");
-	}
-	
-	ethHelper.loop();
-	mqttHelper.loop();
-	delay(50);
+    if(mqttHelper.onConnected()){
+	mqttHelper.subscribe("input/+/command/#");
+    }
+
+    ethHelper.loop();
+    mqttHelper.loop();
+    delay(50);
 }
 ```
