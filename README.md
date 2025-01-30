@@ -145,15 +145,15 @@ void loop() {
     String t = "";
     String m = "";
 
-    if (mqttHelper.onMessageReceived()){
+	if (mqttHelper.onMessageReceived()){
 		t = mqttHelper.getLastTopic();
 		m = mqttHelper.getLastMessage();
 	}    
-
+	
 	if (m != "") {
 		Serial.println("Message received in MAIN LOOP: " + m);
 	}
-
+	
 	// publish a message roughly every second.
 	if (millis() - lastMillis > 1000) {
 		lastMillis = millis();
