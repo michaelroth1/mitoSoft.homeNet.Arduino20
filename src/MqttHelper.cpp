@@ -68,11 +68,14 @@ void MqttHelper::publish(String topic, String message, bool retain = false) {
 
 void MqttHelper::loop() {
 	if (!_mqttClient->connected()) {
-	    if (millis() - _actualTime > _reconnectionTime) {
+		if (millis() - _actualTime > _reconnectionTime) {
 			_actualTime = millis();
 			writeSerial("MQTT reconnecting... " + String(millis()) + " millis");
 			this->connect();
 		}
+	}
+	else {
+		this->messageReceived();
 	}
 }
 
