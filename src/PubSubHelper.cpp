@@ -1,6 +1,5 @@
 #include "MitoSoft.h"
 #include <Arduino.h>
-#include <string.h>
 #include <PubSubClient.h>
 
 //https://github.com/knolleary/pubsubclient

@@ -1,4 +1,3 @@
-
 #ifndef MitoSoft_h
 #define MitoSoft_h
 
@@ -32,11 +31,14 @@ private:
 
 	void disableSDCard();
 
+	void check();
+
+	String ipToString(IPAddress ip);
 public:
 
-	EthernetHelper(byte mac[6], bool writeLog = false);
+	EthernetHelper(byte mac[6], IPAddress ip, bool writeLog = false);
 
-	void fixIpSetup(IPAddress ip);
+	void fixIpSetup();
 
 	void dhcpSetup();
 
@@ -142,7 +144,7 @@ private:
 	double _runToPosAfterRefRunDouble = -1.0;
 	double _finPosAfterRun = -1.0;
 	double _finPosAfterRefRun = -1.0;
- 
+
 	int _upPin = 0;
 	int _downPin = 0;
 	InvertableOutput* _up;
@@ -154,8 +156,8 @@ private:
 	bool _hasStopped = false; //Event 'stopped' 
 	bool _hasStarted = false; //Event 'started' 
 	bool _running = false; //Event 'running' 
-    bool _writeLog = true;
- 
+	bool _writeLog = true;
+
 	unsigned long _lastReferenceRun = 0;
 	unsigned long _shutterRunTime = 0;
 	unsigned long _finOpenTime = 0;
@@ -175,11 +177,11 @@ private:
 	double CalculateShutterCorrection(double finStartPos, double finEndPos);
 
 	void SetVariablesToInitValue();
-    
+
 	void writeSerial(String text);
-	
+
 	void stop();
- 
+
 public:
 
 	ShutterController(unsigned long maxRunTime, unsigned long finOpenTime = 0, double upReferencePos = -2.0, double downReferencePos = 102.0, int reverseTime = 500, bool writeLog = false);
@@ -211,7 +213,7 @@ public:
 	bool stopped();
 
 	bool started();
-	
+
 	bool running();
 
 	bool isReferenceRun();
@@ -231,23 +233,23 @@ private:
 	MqttClient* _mqttClient = nullptr;
 
 	bool _writeLog;
-    String _topic;
+	String _topic;
 	String _message;
-	
+
 	String _clientId;
-	IPAddress _brokerIP;	
-    
+	IPAddress _brokerIP;
+
 	unsigned long _pollingInterval = 10000;
 	unsigned long _actualTime = 0;
 	unsigned long _reconnectionTime = 3000;
 
-    bool _onConnected;
+	bool _onConnected;
 	bool _onMessageReceived;
-	
+
 	void writeSerial(String text);
-	
-	void messageReceived(); 
-	
+
+	void messageReceived();
+
 	bool connect();
 public:
 
@@ -261,12 +263,12 @@ public:
 
 	void publish(String topic, String message, bool retain = false);
 
-    void subscribe(String topic);
-	
+	void subscribe(String topic);
+
 	void loop();
-	
+
 	bool onMessageReceived(); //Event
-	
+
 	bool onConnected(); //Event
 };
 
@@ -280,12 +282,12 @@ private:
 	static bool _writeLog;
 	static String _topic;
 	static String _message;
-    
+
 	bool _onConnected;
 	static bool _onMessageReceived;
-	
+
 	char* _clientId;
-	
+
 	IPAddress _broker;
 	uint16_t _port = 1883;
 
@@ -296,7 +298,7 @@ private:
 
 	static void messageReceived(char* topic, byte* payload, unsigned int length);
 
-    bool connect();
+	bool connect();
 public:
 
 	PubSubHelper(PubSubClient& client, unsigned long reconnectionTime = 15000, bool writeLog = false);
@@ -308,13 +310,13 @@ public:
 	String getLastMessage();
 
 	void publish(String topic, String message, bool retain = false);
-	
-    void subscribe(String topic);
-	
+
+	void subscribe(String topic);
+
 	void loop();
-	
+
 	bool onMessageReceived(); //Event
-	
+
 	bool onConnected(); //Event
 };
 
