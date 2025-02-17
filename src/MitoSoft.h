@@ -34,6 +34,7 @@ private:
 	void check();
 
 	String ipToString(IPAddress ip);
+
 public:
 
 	EthernetHelper(byte mac[6], IPAddress ip, bool writeLog = false);
@@ -251,11 +252,12 @@ private:
 	void messageReceived();
 
 	bool connect();
+
 public:
 
 	MqttHelper(MqttClient& client, unsigned long reconnectionTime = 15000, bool writeLog = false);
 
-	void init(IPAddress broker, String clientId);
+	void init(IPAddress broker, String clientId, String user = "", String password = "");
 
 	String getLastTopic();
 
@@ -287,6 +289,8 @@ private:
 	static bool _onMessageReceived;
 
 	char* _clientId;
+	char* _user;
+	char* _password;
 
 	IPAddress _broker;
 	uint16_t _port = 1883;
@@ -299,11 +303,12 @@ private:
 	static void messageReceived(char* topic, byte* payload, unsigned int length);
 
 	bool connect();
+
 public:
 
 	PubSubHelper(PubSubClient& client, unsigned long reconnectionTime = 15000, bool writeLog = false);
 
-	void init(char* clientId);
+	void init(IPAddress broker, char* clientId, char* user = "", char* password = "");
 
 	String getLastTopic();
 

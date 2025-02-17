@@ -18,10 +18,10 @@ PubSubHelper::PubSubHelper(PubSubClient& client, unsigned long reconnectionTime,
 	this->_writeLog = writeLog;
 	this->_reconnectionTime = reconnectionTime;
 	this->_actualTime = millis();
-	
+
 	_onConnected = false;
 	_onMessageReceived = false;
-	
+
 	_topic = "";
 	_message = "";
 }
@@ -37,14 +37,17 @@ void PubSubHelper::messageReceived(char* topic, byte* payload, unsigned int leng
 	_message = message;
 
 	writeSerial("Message received - Topic " + _topic + "; Message " + _message);
-	
-	if(_topic != "") {
-	   _onMessageReceived = true;
+
+	if (_topic != "") {
+		_onMessageReceived = true;
 	}
 }
 
-void PubSubHelper::init(char* clientId) {
+void PubSubHelper::init(IPAddress broker, char* clientId, char* user, char* password) {
 	this->_clientId = clientId;
+	this->_user = user;
+	this->_password = password;
+	_mqttClient->setServer(broker, 1883);
 }
 
 String PubSubHelper::getLastTopic()
@@ -75,7 +78,7 @@ void PubSubHelper::subscribe(String topic)
 void PubSubHelper::publish(String topic, String message, bool retain = false)
 {
 	if (_mqttClient->connected()) {
-				
+
 		char t[topic.length() + 1];
 		topic.toCharArray(t, topic.length() + 1);
 
@@ -109,9 +112,18 @@ void PubSubHelper::writeSerial(String text) {
 	}
 }
 
-
 bool PubSubHelper::connect() {
-	if (!_mqttClient->connect(_clientId)) {
+	bool connected = false;
+	String user = _user ? _user : ""; //nullpointer save handling
+	String password = _password ? _password : ""; //nullpointer save handling
+	if (user != "" && password != "")
+	{
+		connected = _mqttClient->connect(_clientId, _user, _password);
+	}
+	else {
+		connected = _mqttClient->connect(_clientId);
+	}
+	if (!connected) {
 		writeSerial("MQTT connection failed: Error code " + String(_mqttClient->state()));
 
 		return false;
@@ -121,9 +133,9 @@ bool PubSubHelper::connect() {
 
 		_mqttClient->setCallback(*messageReceived); //eventuell die 
 		//setCallback Funktion in Konstruktor verlagern
-        
+
 		_onConnected = true;
-		
+
 		return true;
 	}
 }
@@ -131,13 +143,13 @@ bool PubSubHelper::connect() {
 //*******************************************************************************************************************************
 //EVENTS
 //
-bool PubSubHelper::onConnected() {	
+bool PubSubHelper::onConnected() {
 	bool connected = _onConnected;
 	_onConnected = false;
 	return connected;
 }
 
-bool PubSubHelper::onMessageReceived() {	
+bool PubSubHelper::onMessageReceived() {
 	bool messageReceived = _onMessageReceived;
 	_onMessageReceived = false;
 	return messageReceived;

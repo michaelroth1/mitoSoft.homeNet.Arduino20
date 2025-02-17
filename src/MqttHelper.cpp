@@ -8,15 +8,15 @@ MqttHelper::MqttHelper(MqttClient& client, unsigned long reconnectionTime, bool 
 	this->_pollingInterval = 1000;
 	this->_reconnectionTime = reconnectionTime;
 	this->_actualTime = millis();
-	
+
 	_onConnected = false;
 	_onMessageReceived = false;
-	
+
 	_topic = "";
 	_message = "";
 }
 
-void MqttHelper::messageReceived(){	
+void MqttHelper::messageReceived() {
 	if (_mqttClient->connected()) {
 		int messageSize = _mqttClient->parseMessage();
 		if (messageSize) {
@@ -30,15 +30,18 @@ void MqttHelper::messageReceived(){
 			writeSerial("MQTT message received - Topic " + _topic + "; Message " + _message);
 			_onMessageReceived = true;
 		}
-		else{
+		else {
 			_onMessageReceived = false;
 		}
 	}
 }
 
-void MqttHelper::init(IPAddress broker, String clientId) {
+void MqttHelper::init(IPAddress broker, String clientId, String user, String password) {
 	this->_clientId = clientId;
 	this->_brokerIP = broker;
+	if (user != "" && password != "") {
+		_mqttClient->setUsernamePassword(user, password);
+	}
 }
 
 String MqttHelper::getLastTopic() {
@@ -50,9 +53,9 @@ String MqttHelper::getLastMessage() {
 }
 
 void MqttHelper::subscribe(String topic) {
-	
+
 	_mqttClient->subscribe(topic, 2); //TODO war ohne qos Level
-	
+
 	writeSerial("MQTT subscription - Topic " + topic);
 }
 
@@ -61,7 +64,7 @@ void MqttHelper::publish(String topic, String message, bool retain = false) {
 		_mqttClient->beginMessage(topic, retain, 2); //TODO war ma qos Level 2
 		_mqttClient->print(message);
 		_mqttClient->endMessage();
-		
+
 		writeSerial("MQTT message published - Topic " + topic + "; Message " + message);
 	}
 }
@@ -81,7 +84,7 @@ void MqttHelper::loop() {
 
 bool MqttHelper::connect() {
 	this->_mqttClient->setId(_clientId);
-	
+
 	if (!_mqttClient->connect(_brokerIP)) {
 		writeSerial("MQTT connection failed: Error code " + String(_mqttClient->connectError()));
 
@@ -91,7 +94,7 @@ bool MqttHelper::connect() {
 		writeSerial("MQTT connected to broker: " + _clientId);
 
 		_onConnected = true;
-		
+
 		return true;
 	}
 }
@@ -105,13 +108,13 @@ void MqttHelper::writeSerial(String text) {
 //*******************************************************************************************************************************
 //EVENTS
 //
-bool MqttHelper::onConnected() {	
+bool MqttHelper::onConnected() {
 	bool connected = _onConnected;
 	_onConnected = false;
 	return connected;
 }
 
-bool MqttHelper::onMessageReceived() {	
+bool MqttHelper::onMessageReceived() {
 	bool messageReceived = _onMessageReceived;
 	_onMessageReceived = false;
 	return messageReceived;
